@@ -35,7 +35,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000, // 24h
   },
 }));
 
@@ -50,14 +50,20 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api', apiLimiter);
+
+// Auth routes (no auth required)
 app.use('/auth', authRouter);
+
+// Protected API routes
 app.use('/api/news', requireAuth, newsRouter);
 app.use('/api/alerts', requireAuth, alertsRouter);
 app.use('/api/hotspots', requireAuth, hotspotsRouter);
 app.use('/api/analysis', requireAuth, analysisRouter);
 
+// Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 
+// Serve static React build in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
   app.get('*', (req, res) => {

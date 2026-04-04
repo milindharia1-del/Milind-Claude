@@ -12,6 +12,7 @@ export default function Dashboard({ user, theme, onThemeToggle }) {
 
   return (
     <div
+      className="dashboard-grid"
       style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 380px',
@@ -30,9 +31,21 @@ export default function Dashboard({ user, theme, onThemeToggle }) {
         overflow: 'hidden',
       }}
     >
-      <StatusBar user={user} theme={theme} onThemeToggle={onThemeToggle} style={{ gridArea: 'statusbar' }} />
-      <WorldMap activeHotspot={activeHotspot} onHotspotSelect={setActiveHotspot} style={{ gridArea: 'map' }} />
-      <NewsFeed activeHotspot={activeHotspot} style={{ gridArea: 'feed' }} />
+      <StatusBar
+        user={user}
+        theme={theme}
+        onThemeToggle={onThemeToggle}
+        style={{ gridArea: 'statusbar' }}
+      />
+      <WorldMap
+        activeHotspot={activeHotspot}
+        onHotspotSelect={setActiveHotspot}
+        style={{ gridArea: 'map' }}
+      />
+      <NewsFeed
+        activeHotspot={activeHotspot}
+        style={{ gridArea: 'feed' }}
+      />
       <AlertsPanel style={{ gridArea: 'alerts' }} />
       <AIAnalysis style={{ gridArea: 'analysis' }} />
       <TrendsChart style={{ gridArea: 'trends' }} />

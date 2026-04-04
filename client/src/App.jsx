@@ -30,7 +30,9 @@ export default function App() {
     );
   }
 
-  if (!data?.authenticated) return <LoginPage />;
+  if (!data?.authenticated) {
+    return <LoginPage />;
+  }
 
   return (
     <Dashboard

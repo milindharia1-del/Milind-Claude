@@ -107,6 +107,7 @@ async function generateDigest(articles) {
   }
 }
 
+// POST /api/analysis/briefing
 router.post('/briefing', async (req, res) => {
   try {
     const articles = await fetchGDELT();
@@ -118,6 +119,7 @@ router.post('/briefing', async (req, res) => {
   }
 });
 
+// POST /api/analysis/briefing?force=1 — bust cache
 router.post('/briefing/refresh', async (req, res) => {
   cache.del('briefing');
   try {
@@ -130,6 +132,7 @@ router.post('/briefing/refresh', async (req, res) => {
   }
 });
 
+// GET /api/analysis/digest
 router.get('/digest', async (req, res) => {
   try {
     const articles = await fetchGDELT();
@@ -140,6 +143,7 @@ router.get('/digest', async (req, res) => {
   }
 });
 
+// GET /api/analysis/trends
 router.get('/trends', async (req, res) => {
   try {
     const articles = await fetchGDELT();

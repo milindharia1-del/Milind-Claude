@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { fetchGDELT } = require('./news');
 
+// 8 regional hotspots with geo coordinates
 const HOTSPOT_REGIONS = [
   { id: 'ua', name: 'Ukraine', lat: 49.4, lng: 31.1, region: 'Europe', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia'] },
   { id: 'me', name: 'Middle East', lat: 31.5, lng: 35.2, region: 'Middle East', keywords: ['israel', 'gaza', 'hamas', 'lebanon', 'hezbollah', 'iran'] },

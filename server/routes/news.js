@@ -36,6 +36,7 @@ async function fetchGDELT() {
   if (cached) return cached;
 
   try {
+    // GDELT GKG 2.0 API — returns JSON article metadata
     const url = 'https://api.gdeltproject.org/api/v2/doc/doc?query=geopolitics%20conflict%20diplomacy&mode=ArtList&maxrecords=60&format=json&timespan=1440';
     const { data } = await axios.get(url, { timeout: 10000 });
 

@@ -19,9 +19,15 @@
     --accent: #2563eb;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  html, body, #root {
+  html,
+  body,
+  #root {
     width: 100%;
     height: 100%;
     font-family: 'Inter', system-ui, sans-serif;
@@ -31,22 +37,68 @@
   }
 }
 
-.leaflet-container { background: #0d1520 !important; font-family: 'Inter', sans-serif; }
-.light .leaflet-container { background: #e8eef5 !important; }
+/* Leaflet overrides */
+.leaflet-container {
+  background: #0d1520 !important;
+  font-family: 'Inter', sans-serif;
+}
 
+.light .leaflet-container {
+  background: #e8eef5 !important;
+}
+
+/* Scrollable panels */
 .panel-scroll {
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.12) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
-.light .panel-scroll { scrollbar-color: rgba(0,0,0,0.12) transparent; }
-.panel-scroll::-webkit-scrollbar { width: 4px; }
-.panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
 
-@keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
-@keyframes status-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-.pulse-dot { animation: status-pulse 2s ease-in-out infinite; }
+.light .panel-scroll {
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
 
+.panel-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+/* Pulse animations */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulse-dot {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* Hotspot marker */
+.hotspot-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.hotspot-ring {
+  position: absolute;
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Card base */
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -54,6 +106,7 @@
   overflow: hidden;
 }
 
+/* Badge */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -65,6 +118,7 @@
   letter-spacing: 0.04em;
 }
 
+/* Severity colours */
 .sev-critical { color: #ef4444; }
 .sev-high { color: #f97316; }
 .sev-watch { color: #eab308; }
@@ -75,6 +129,7 @@
 .sev-dot-watch { background: #eab308; }
 .sev-dot-normal { background: #6b7280; }
 
+/* Category badge colours */
 .cat-conflict { background: rgba(239,68,68,0.15); color: #ef4444; }
 .cat-diplomacy { background: rgba(59,130,246,0.15); color: #60a5fa; }
 .cat-economy { background: rgba(34,197,94,0.15); color: #4ade80; }

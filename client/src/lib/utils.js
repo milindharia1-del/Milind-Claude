@@ -10,15 +10,34 @@ export function timeAgo(isoDate) {
 }
 
 export function categoryClass(cat) {
-  return { Conflict:'cat-conflict', Diplomacy:'cat-diplomacy', Economy:'cat-economy', Elections:'cat-elections' }[cat] || 'cat-general';
+  const map = {
+    Conflict: 'cat-conflict',
+    Diplomacy: 'cat-diplomacy',
+    Economy: 'cat-economy',
+    Elections: 'cat-elections',
+    General: 'cat-general',
+  };
+  return map[cat] || 'cat-general';
 }
 
 export function severityDotClass(sev) {
-  return { Critical:'sev-dot-critical', High:'sev-dot-high', Watch:'sev-dot-watch', Normal:'sev-dot-normal' }[sev] || 'sev-dot-normal';
+  const map = {
+    Critical: 'sev-dot-critical',
+    High: 'sev-dot-high',
+    Watch: 'sev-dot-watch',
+    Normal: 'sev-dot-normal',
+  };
+  return map[sev] || 'sev-dot-normal';
 }
 
 export function severityTextClass(sev) {
-  return { Critical:'sev-critical', High:'sev-high', Watch:'sev-watch', Normal:'sev-normal' }[sev] || 'sev-normal';
+  const map = {
+    Critical: 'sev-critical',
+    High: 'sev-high',
+    Watch: 'sev-watch',
+    Normal: 'sev-normal',
+  };
+  return map[sev] || 'sev-normal';
 }
 
 export function hotspotColor(severity) {

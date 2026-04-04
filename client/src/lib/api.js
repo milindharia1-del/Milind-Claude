@@ -1,11 +1,16 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/', withCredentials: true });
+const api = axios.create({
+  baseURL: '/',
+  withCredentials: true,
+});
 
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) window.location.reload();
+    if (err.response?.status === 401) {
+      window.location.reload();
+    }
     return Promise.reject(err);
   }
 );
@@ -16,7 +21,8 @@ export const authApi = {
 };
 
 export const newsApi = {
-  getNews: (category) => api.get('/api/news', { params: { category, limit: 30 } }).then((r) => r.data),
+  getNews: (category) =>
+    api.get('/api/news', { params: { category, limit: 30 } }).then((r) => r.data),
   getAlerts: () => api.get('/api/alerts').then((r) => r.data),
   getHotspots: () => api.get('/api/hotspots').then((r) => r.data),
 };
