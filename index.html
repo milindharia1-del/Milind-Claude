@@ -8,187 +8,403 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 4rem;
     }
 
     .container {
       width: 100%;
-      max-width: 600px;
+      max-width: 680px;
+      margin: 0 auto;
     }
 
-    h1 {
-      font-size: 1.75rem;
-      margin-bottom: 1.25rem;
-      color: #1a1a1a;
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
-    .add-note {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #e0c3fc, #8ec5fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    textarea {
-      width: 100%;
-      min-height: 90px;
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      resize: vertical;
-      background: #fff;
-      transition: border-color 0.15s;
-    }
-
-    textarea:focus {
-      outline: none;
-      border-color: #4f6ef7;
-    }
-
-    button.add-btn {
-      align-self: flex-end;
-      padding: 0.5rem 1.25rem;
-      background: #4f6ef7;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
+    header p {
+      color: #8892b0;
       font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.15s;
+      margin-top: 0.25rem;
     }
 
-    button.add-btn:hover { background: #3a57d4; }
-    button.add-btn:disabled { background: #a0aee8; cursor: not-allowed; }
+    /* ── Form card ── */
+    .form-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
 
+    .form-card input[type="text"],
+    .form-card textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .form-card input[type="text"]::placeholder,
+    .form-card textarea::placeholder { color: #4a5568; }
+
+    .form-card input[type="text"]:focus,
+    .form-card textarea:focus {
+      border-color: #8ec5fc;
+      box-shadow: 0 0 0 3px rgba(142,197,252,0.15);
+    }
+
+    .form-card input[type="text"] {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-card textarea {
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.55rem 1.3rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.5); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.07);
+      color: #8892b0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+
+    /* ── Section heading ── */
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-heading span {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #8892b0;
+    }
+
+    .section-heading .count {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    /* ── Notes grid ── */
     .notes-list {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
     .empty-state {
       text-align: center;
-      color: #888;
-      padding: 2rem 0;
+      padding: 3rem 0;
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+
+    .empty-state p {
+      color: #4a5568;
       font-size: 0.95rem;
     }
 
+    /* ── Note card ── */
     .note-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.75rem;
-      animation: fadeIn 0.15s ease;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem 0.9rem;
+      position: relative;
+      animation: slideIn 0.2s ease;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
+    .note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    /* accent bar */
+    .note-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 16px; bottom: 16px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .note-body {
-      flex: 1;
+    .note-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 0.35rem;
+      padding-right: 4.5rem;
     }
 
+    .note-title:empty { display: none; }
+
     .note-text {
-      font-size: 0.95rem;
-      color: #222;
+      font-size: 0.9rem;
+      color: #a0aec0;
       white-space: pre-wrap;
       word-break: break-word;
+      line-height: 1.55;
+    }
+
+    .note-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
     }
 
     .note-date {
-      font-size: 0.75rem;
-      color: #999;
-      margin-top: 0.4rem;
+      font-size: 0.72rem;
+      color: #4a5568;
     }
 
-    button.delete-btn {
-      flex-shrink: 0;
-      background: none;
+    .note-date .edited-tag {
+      color: #667eea;
+      margin-left: 0.4rem;
+      font-style: italic;
+    }
+
+    .note-actions {
+      display: flex;
+      gap: 0.3rem;
+      position: absolute;
+      top: 0.85rem;
+      right: 0.9rem;
+    }
+
+    .icon-btn {
+      width: 30px; height: 30px;
       border: none;
+      border-radius: 7px;
       cursor: pointer;
-      color: #bbb;
-      font-size: 1.1rem;
-      line-height: 1;
-      padding: 0.1rem 0.3rem;
-      border-radius: 4px;
-      transition: color 0.15s, background 0.15s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+      background: rgba(255,255,255,0.05);
+      color: #4a5568;
     }
 
-    button.delete-btn:hover {
-      color: #e53e3e;
-      background: #fff0f0;
+    .icon-btn:hover.edit   { background: rgba(102,126,234,0.2); color: #8ec5fc; }
+    .icon-btn:hover.delete { background: rgba(245, 101, 101,0.15); color: #fc8181; }
+
+    /* ── Inline edit mode ── */
+    .note-card.editing .note-title,
+    .note-card.editing .note-text { display: none; }
+
+    .edit-fields { display: none; flex-direction: column; gap: 0.5rem; }
+    .note-card.editing .edit-fields { display: flex; }
+
+    .edit-fields input,
+    .edit-fields textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(142,197,252,0.3);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: inherit;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.9rem;
+      outline: none;
     }
+
+    .edit-fields input { font-weight: 600; }
+    .edit-fields textarea { resize: vertical; min-height: 70px; }
+
+    .edit-fields input:focus,
+    .edit-fields textarea:focus { border-color: #8ec5fc; }
+
+    .edit-save-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+
+    .edit-save-row .btn { font-size: 0.8rem; padding: 0.4rem 1rem; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Notes</h1>
 
-    <div class="add-note">
-      <textarea id="note-input" placeholder="Write a note…" rows="3"></textarea>
-      <button class="add-btn" id="add-btn" disabled>Add Note</button>
+    <header>
+      <h1>&#128396; My Notes</h1>
+      <p>Your thoughts, saved locally.</p>
+    </header>
+
+    <!-- Add / Edit form -->
+    <div class="form-card">
+      <input type="text" id="title-input" placeholder="Note title (optional)" />
+      <textarea id="note-input" placeholder="Write something…" rows="3"></textarea>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="add-btn" disabled>+ Add Note</button>
+      </div>
+    </div>
+
+    <!-- Notes list -->
+    <div class="section-heading">
+      <span>All Notes</span>
+      <span class="count" id="note-count">0</span>
     </div>
 
     <div class="notes-list" id="notes-list"></div>
+
   </div>
 
   <script>
-    const STORAGE_KEY = 'simple-notes';
+    const STORAGE_KEY = 'fancy-notes-v2';
 
-    const textarea  = document.getElementById('note-input');
-    const addBtn    = document.getElementById('add-btn');
-    const notesList = document.getElementById('notes-list');
+    const titleInput = document.getElementById('title-input');
+    const noteInput  = document.getElementById('note-input');
+    const addBtn     = document.getElementById('add-btn');
+    const notesList  = document.getElementById('notes-list');
+    const noteCount  = document.getElementById('note-count');
 
-    // Enable button only when there's content
-    textarea.addEventListener('input', () => {
-      addBtn.disabled = textarea.value.trim() === '';
-    });
+    const checkEmpty = () => {
+      addBtn.disabled = noteInput.value.trim() === '' && titleInput.value.trim() === '';
+    };
+    titleInput.addEventListener('input', checkEmpty);
+    noteInput.addEventListener('input', checkEmpty);
 
-    // Add note on button click or Ctrl/Cmd+Enter
     addBtn.addEventListener('click', addNote);
-    textarea.addEventListener('keydown', e => {
+    noteInput.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') addNote();
     });
 
     function addNote() {
-      const text = textarea.value.trim();
-      if (!text) return;
+      const title = titleInput.value.trim();
+      const text  = noteInput.value.trim();
+      if (!title && !text) return;
 
-      const note = { id: Date.now(), text, createdAt: new Date().toISOString() };
+      const note = {
+        id: Date.now(),
+        title,
+        text,
+        createdAt: new Date().toISOString(),
+        updatedAt: null
+      };
+
       const notes = loadNotes();
       notes.unshift(note);
       saveNotes(notes);
 
-      textarea.value = '';
-      addBtn.disabled = true;
-      textarea.focus();
+      titleInput.value = '';
+      noteInput.value  = '';
+      addBtn.disabled  = true;
+      noteInput.focus();
       render(notes);
     }
 
     function deleteNote(id) {
+      if (!confirm('Delete this note?')) return;
       const notes = loadNotes().filter(n => n.id !== id);
       saveNotes(notes);
       render(notes);
     }
 
+    function startEdit(id) {
+      const card = document.querySelector(`.note-card[data-id="${id}"]`);
+      if (!card) return;
+      card.classList.add('editing');
+      card.querySelector('.edit-title').focus();
+    }
+
+    function saveEdit(id) {
+      const card  = document.querySelector(`.note-card[data-id="${id}"]`);
+      const title = card.querySelector('.edit-title').value.trim();
+      const text  = card.querySelector('.edit-text').value.trim();
+      if (!title && !text) return;
+
+      const notes = loadNotes().map(n =>
+        n.id === id ? { ...n, title, text, updatedAt: new Date().toISOString() } : n
+      );
+      saveNotes(notes);
+      render(notes);
+    }
+
+    function cancelEdit(id) {
+      const card = document.querySelector(`.note-card[data-id="${id}"]`);
+      if (card) card.classList.remove('editing');
+    }
+
     function render(notes) {
       notesList.innerHTML = '';
+      noteCount.textContent = notes.length;
 
       if (notes.length === 0) {
-        notesList.innerHTML = '<p class="empty-state">No notes yet. Add one above!</p>';
+        notesList.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📝</div>
+            <p>No notes yet — add your first one above!</p>
+          </div>`;
         return;
       }
 
@@ -197,38 +413,56 @@
         card.className = 'note-card';
         card.dataset.id = note.id;
 
-        const body = document.createElement('div');
-        body.className = 'note-body';
+        const dateStr = formatDate(note.createdAt);
+        const editTag = note.updatedAt
+          ? `<span class="edited-tag">edited ${formatDate(note.updatedAt)}</span>` : '';
 
-        const textEl = document.createElement('p');
-        textEl.className = 'note-text';
-        textEl.textContent = note.text;
+        card.innerHTML = `
+          <div class="note-actions">
+            <button class="icon-btn edit" title="Edit">&#9998;</button>
+            <button class="icon-btn delete" title="Delete">&#128465;</button>
+          </div>
 
-        const dateEl = document.createElement('p');
-        dateEl.className = 'note-date';
-        dateEl.textContent = formatDate(note.createdAt);
+          <div class="note-title">${escHtml(note.title)}</div>
+          <div class="note-text">${escHtml(note.text)}</div>
 
-        body.appendChild(textEl);
-        body.appendChild(dateEl);
+          <div class="edit-fields">
+            <input class="edit-title" type="text" value="${escAttr(note.title)}" placeholder="Title (optional)" />
+            <textarea class="edit-text" rows="3">${escHtml(note.text)}</textarea>
+            <div class="edit-save-row">
+              <button class="btn btn-ghost cancel-btn">Cancel</button>
+              <button class="btn btn-primary save-btn">Save</button>
+            </div>
+          </div>
 
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.title = 'Delete note';
-        delBtn.textContent = '✕';
-        delBtn.addEventListener('click', () => deleteNote(note.id));
+          <div class="note-footer">
+            <span class="note-date">${dateStr}${editTag}</span>
+          </div>`;
 
-        card.appendChild(body);
-        card.appendChild(delBtn);
+        card.querySelector('.icon-btn.edit').addEventListener('click', () => startEdit(note.id));
+        card.querySelector('.icon-btn.delete').addEventListener('click', () => deleteNote(note.id));
+        card.querySelector('.save-btn').addEventListener('click', () => saveEdit(note.id));
+        card.querySelector('.cancel-btn').addEventListener('click', () => cancelEdit(note.id));
+
         notesList.appendChild(card);
       });
     }
 
     function formatDate(iso) {
-      const d = new Date(iso);
-      return d.toLocaleString(undefined, {
+      return new Date(iso).toLocaleString(undefined, {
         month: 'short', day: 'numeric', year: 'numeric',
         hour: 'numeric', minute: '2-digit'
       });
+    }
+
+    function escHtml(str) {
+      return (str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function escAttr(str) {
+      return (str || '').replace(/"/g, '&quot;');
     }
 
     function loadNotes() {
@@ -240,7 +474,6 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
     }
 
-    // Initial render
     render(loadNotes());
   </script>
 </body>
