@@ -6,7 +6,8 @@ import {
   Marker,
   ZoomableGroup,
 } from 'react-simple-maps';
-import worldData from 'world-atlas/countries-110m.json';
+// Served as a static file from the same origin (copied by vite.config.js at build time)
+const GEO_URL = '/world-110m.json';
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../lib/api';
 import { hotspotColor } from '../lib/utils';
@@ -142,7 +143,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       >
         <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={8}>
-          <Geographies geography={worldData}>
+          <Geographies geography={GEO_URL}>
             {({ geographies }) =>
               geographies.map((geo) => (
                 <Geography
