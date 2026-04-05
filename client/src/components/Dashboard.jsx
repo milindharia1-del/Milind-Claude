@@ -26,7 +26,7 @@ export default function Dashboard({ user, theme, onThemeToggle }) {
       style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 440px',
-        gridTemplateRows: '44px 1fr 1fr 200px',
+        gridTemplateRows: '44px 1fr 1fr 260px',
         gridTemplateAreas: `
           "statusbar statusbar statusbar"
           "map       map       feed"
