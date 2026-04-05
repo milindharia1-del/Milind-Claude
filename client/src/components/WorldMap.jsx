@@ -1,15 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../lib/api';
 import { hotspotColor } from '../lib/utils';
 
-// Leaflet is loaded via CDN in index.html; access it via window.L
 let L;
 
 export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  const [mapReady, setMapReady] = useState(false);
 
   const { data } = useQuery({
     queryKey: ['hotspots'],
@@ -34,7 +34,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
       });
 
       L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         { maxZoom: 19 }
       ).addTo(map);
 
@@ -42,6 +42,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
       L.control.attribution({ position: 'bottomleft', prefix: '© CartoDB' }).addTo(map);
 
       mapInstanceRef.current = map;
+      setMapReady(true);
     });
 
     return () => {
@@ -54,7 +55,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
 
   // Add/update hotspot markers
   useEffect(() => {
-    if (!mapInstanceRef.current || !hotspots.length) return;
+    if (!mapReady || !mapInstanceRef.current || !hotspots.length) return;
     import('leaflet').then((leaflet) => {
       L = leaflet.default;
       const map = mapInstanceRef.current;
@@ -118,7 +119,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
         markersRef.current[hs.id] = marker;
       });
     });
-  }, [hotspots, activeHotspot, onHotspotSelect]);
+  }, [hotspots, activeHotspot, onHotspotSelect, mapReady]);
 
   return (
     <div
