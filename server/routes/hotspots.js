@@ -10,7 +10,7 @@ const HOTSPOT_REGIONS = [
   { id: 'sd', name: 'Sudan', lat: 15.5, lng: 32.5, region: 'Africa', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese', 'rapid support', 'south sudan', 'sudani', 'omdurman', 'war sudan'] },
   { id: 'tw', name: 'Taiwan Strait', lat: 23.8, lng: 121.0, region: 'Asia-Pacific', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military', 'tsai', 'taiwanese', 'china navy', 'south china sea', 'china threat', 'beijing taiwan'] },
   { id: 'kp', name: 'Korean Peninsula', lat: 37.5, lng: 127.0, region: 'Asia-Pacific', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm', 'seoul', 'south korea military', 'korean missile', 'ballistic korea'] },
-  { id: 'in', name: 'J&K / India-Pak', lat: 34.0, lng: 76.5, region: 'South Asia', keywords: ['kashmir', 'jammu', 'line of control', 'loc india', 'india pakistan', 'pakistan military', 'islamabad', 'modi pakistan', 'pulwama', 'uri attack', 'surgical strike'] },
+  { id: 'in', name: 'India-Pakistan', lat: 34.0, lng: 76.5, region: 'South Asia', keywords: ['kashmir', 'jammu', 'line of control', 'loc india', 'india pakistan', 'pakistan military', 'islamabad', 'modi pakistan', 'pulwama', 'uri attack', 'surgical strike'] },
   { id: 'sa', name: 'Sahel Region', lat: 14.0, lng: -1.5, region: 'Africa', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner', 'faso', 'bamako', 'niamey', 'al qaeda sahel', 'jihadist africa'] },
 ];
 

@@ -216,7 +216,7 @@ const HOTSPOT_META = {
   sd: { name: 'Sudan', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese', 'rapid support', 'south sudan'] },
   tw: { name: 'Taiwan Strait', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military', 'taiwanese', 'south china sea'] },
   kp: { name: 'Korean Peninsula', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm', 'korean missile', 'seoul'] },
-  in: { name: 'J&K / India-Pakistan', keywords: ['kashmir', 'jammu', 'line of control', 'india pakistan', 'pakistan military', 'islamabad', 'pulwama', 'loc india'] },
+  in: { name: 'India-Pakistan', keywords: ['kashmir', 'jammu', 'line of control', 'india pakistan', 'pakistan military', 'islamabad', 'pulwama', 'loc india'] },
   sa: { name: 'Sahel Region', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner', 'bamako', 'niamey'] },
 };
 
