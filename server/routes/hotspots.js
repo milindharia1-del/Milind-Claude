@@ -1,16 +1,17 @@
 const router = require('express').Router();
 const { fetchGDELT } = require('./news');
 
-// 8 regional hotspots with geo coordinates
+// 9 regional hotspots with geo coordinates
 const HOTSPOT_REGIONS = [
-  { id: 'ua', name: 'Ukraine', lat: 49.4, lng: 31.1, region: 'Europe', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia'] },
-  { id: 'me', name: 'Middle East', lat: 31.5, lng: 35.2, region: 'Middle East', keywords: ['israel', 'gaza', 'hamas', 'lebanon', 'hezbollah', 'iran'] },
-  { id: 'sy', name: 'Syria', lat: 34.8, lng: 38.9, region: 'Middle East', keywords: ['syria', 'damascus', 'syrian'] },
-  { id: 'sd', name: 'Sudan', lat: 15.5, lng: 32.5, region: 'Africa', keywords: ['sudan', 'khartoum', 'darfur', 'rsf'] },
-  { id: 'tw', name: 'Taiwan Strait', lat: 23.8, lng: 121.0, region: 'Asia-Pacific', keywords: ['taiwan', 'strait', 'pla', 'beijing', 'china'] },
-  { id: 'kp', name: 'Korean Peninsula', lat: 37.5, lng: 127.0, region: 'Asia-Pacific', keywords: ['north korea', 'kim', 'pyongyang', 'nuclear', 'missile'] },
-  { id: 'in', name: 'India-Pakistan', lat: 30.4, lng: 73.1, region: 'South Asia', keywords: ['india', 'pakistan', 'kashmir', 'border'] },
-  { id: 'sa', name: 'Sahel Region', lat: 14.0, lng: -1.5, region: 'Africa', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta'] },
+  { id: 'ua', name: 'Ukraine', lat: 49.4, lng: 31.1, region: 'Europe', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv'] },
+  { id: 'ir', name: 'Iran', lat: 32.4, lng: 53.7, region: 'Middle East', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian'] },
+  { id: 'me', name: 'Israel-Gaza', lat: 31.5, lng: 35.2, region: 'Middle East', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah'] },
+  { id: 'sy', name: 'Syria', lat: 34.8, lng: 38.9, region: 'Middle East', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib'] },
+  { id: 'sd', name: 'Sudan', lat: 15.5, lng: 32.5, region: 'Africa', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese'] },
+  { id: 'tw', name: 'Taiwan Strait', lat: 23.8, lng: 121.0, region: 'Asia-Pacific', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military'] },
+  { id: 'kp', name: 'Korean Peninsula', lat: 37.5, lng: 127.0, region: 'Asia-Pacific', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm'] },
+  { id: 'in', name: 'India-Pakistan', lat: 30.4, lng: 73.1, region: 'South Asia', keywords: ['india', 'pakistan', 'kashmir', 'loc', 'islamabad'] },
+  { id: 'sa', name: 'Sahel Region', lat: 14.0, lng: -1.5, region: 'Africa', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner'] },
 ];
 
 function matchHotspot(article) {
@@ -44,8 +45,14 @@ router.get('/', async (req, res) => {
         ...hs,
         severity,
         articleCount: related.length,
-        latestHeadline: related[0]?.title || null,
-        latestUrl: related[0]?.url || null,
+        articles: related.slice(0, 4).map((a) => ({
+          title: a.title,
+          url: a.url,
+          source: a.source,
+          publishedAt: a.publishedAt,
+          category: a.category,
+          severity: a.severity,
+        })),
       };
     });
 

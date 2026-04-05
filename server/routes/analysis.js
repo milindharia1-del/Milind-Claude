@@ -28,7 +28,7 @@ async function generateBriefing(headlines) {
   try {
     const headlineText = headlines.slice(0, 10).map((h, i) => `${i + 1}. ${h}`).join('\n');
     const message = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 256,
       messages: [
         {
@@ -48,8 +48,9 @@ async function generateBriefing(headlines) {
   } catch (err) {
     console.error('Claude briefing error:', err.message);
     return {
-      text: 'AI analysis temporarily unavailable. Please check your Anthropic API key configuration.',
+      text: `AI analysis unavailable: ${err.message}`,
       generatedAt: new Date().toISOString(),
+      error: true,
     };
   }
 }
@@ -66,7 +67,7 @@ async function generateDigest(articles) {
     }).join('\n\n');
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 400,
       messages: [
         {

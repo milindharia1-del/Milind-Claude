@@ -98,6 +98,31 @@
   pointer-events: none;
 }
 
+/* Military map popup */
+.military-popup .leaflet-popup-content-wrapper {
+  background: #0f1117;
+  border: 1px solid rgba(0,255,180,0.15);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,255,180,0.08);
+}
+.military-popup .leaflet-popup-content {
+  margin: 0;
+  color: #e5e7eb;
+}
+.military-popup .leaflet-popup-tip {
+  background: #0f1117;
+}
+.military-popup .leaflet-popup-close-button {
+  color: #6b7280 !important;
+  font-size: 16px !important;
+  top: 8px !important;
+  right: 8px !important;
+}
+.military-popup .leaflet-popup-close-button:hover {
+  color: #e5e7eb !important;
+}
+
 /* Card base */
 .card {
   background: var(--card-bg);

@@ -5,6 +5,90 @@ import { hotspotColor } from '../lib/utils';
 
 let L;
 
+function buildPopupHtml(hs, color) {
+  const sevBg = { Critical: '#ef444422', High: '#f9731622', Watch: '#eab30822' };
+  const articles = hs.articles || [];
+
+  const articleRows = articles.length
+    ? articles
+        .map(
+          (a) => `
+        <a href="${a.url}" target="_blank" rel="noopener" style="
+          display:block;
+          padding:6px 0;
+          border-top:1px solid rgba(255,255,255,0.06);
+          text-decoration:none;
+          color:inherit;
+        ">
+          <div style="font-size:11px;line-height:1.45;color:#d1d5db;margin-bottom:3px;">${a.title}</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:10px;color:#6b7280;">${a.source}</span>
+            <span style="font-size:10px;padding:1px 5px;border-radius:3px;background:${sevBg[a.severity] || '#ffffff11'};color:${hotspotColor(a.severity)};">${a.severity}</span>
+          </div>
+        </a>`
+        )
+        .join('')
+    : `<p style="font-size:11px;color:#6b7280;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06)">No recent articles matched.</p>`;
+
+  return `
+    <div style="
+      font-family:'Inter',system-ui,sans-serif;
+      width:280px;
+      background:#0f1117;
+      color:#e5e7eb;
+      border-radius:8px;
+    ">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="
+          width:10px;height:10px;border-radius:50%;
+          background:${color};
+          box-shadow:0 0 8px ${color};
+          flex-shrink:0;
+        "></span>
+        <strong style="font-size:14px;flex:1;">${hs.name}</strong>
+        <span style="
+          font-size:10px;font-weight:600;letter-spacing:0.05em;
+          padding:2px 7px;border-radius:4px;
+          background:${sevBg[hs.severity] || '#ffffff11'};
+          color:${color};
+          border:1px solid ${color}44;
+        ">${hs.severity.toUpperCase()}</span>
+      </div>
+
+      <!-- Meta -->
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <div style="
+          flex:1;padding:6px 8px;border-radius:6px;
+          background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+        ">
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Region</div>
+          <div style="font-size:11px;font-weight:600;">${hs.region}</div>
+        </div>
+        <div style="
+          flex:1;padding:6px 8px;border-radius:6px;
+          background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+        ">
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Articles (24h)</div>
+          <div style="font-size:11px;font-weight:600;">${hs.articleCount}</div>
+        </div>
+        <div style="
+          flex:1;padding:6px 8px;border-radius:6px;
+          background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+        ">
+          <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Coords</div>
+          <div style="font-size:10px;font-weight:600;">${hs.lat.toFixed(1)}°, ${hs.lng.toFixed(1)}°</div>
+        </div>
+      </div>
+
+      <!-- Articles -->
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">
+        Latest Intelligence
+      </div>
+      ${articleRows}
+    </div>`;
+}
+
 export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -33,10 +117,21 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
         attributionControl: false,
       });
 
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      const tileLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png',
         { maxZoom: 19 }
       ).addTo(map);
+
+      // Military green-blue tint on tiles only (not markers)
+      tileLayer.on('load', () => {
+        const pane = map.getPanes().tilePane;
+        if (pane) pane.style.filter = 'hue-rotate(140deg) saturate(0.55) brightness(0.85)';
+      });
+      // Apply immediately too
+      setTimeout(() => {
+        const pane = map.getPanes().tilePane;
+        if (pane) pane.style.filter = 'hue-rotate(140deg) saturate(0.55) brightness(0.85)';
+      }, 100);
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       L.control.attribution({ position: 'bottomleft', prefix: '© CartoDB' }).addTo(map);
@@ -67,53 +162,33 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
       hotspots.forEach((hs) => {
         const color = hotspotColor(hs.severity);
         const isActive = activeHotspot === hs.id;
+        const size = isActive ? 26 : 18;
 
         const iconHtml = `
-          <div style="
-            position: relative;
-            width: ${isActive ? 24 : 16}px;
-            height: ${isActive ? 24 : 16}px;
-          ">
-            <div style="
-              position: absolute;
-              inset: 0;
-              border-radius: 50%;
-              background: ${color}33;
-              border: 1.5px solid ${color}88;
-              animation: pulse-ring 2s ease-out infinite;
+          <div style="position:relative;width:${size}px;height:${size}px;">
+            <div class="hotspot-ring" style="
+              position:absolute;inset:0;border-radius:50%;
+              background:${color}22;border:1.5px solid ${color}66;
             "></div>
             <div style="
-              position: absolute;
-              inset: ${isActive ? 5 : 3}px;
-              border-radius: 50%;
-              background: ${color};
-              box-shadow: 0 0 8px ${color}88;
+              position:absolute;inset:${isActive ? 6 : 4}px;border-radius:50%;
+              background:${color};box-shadow:0 0 10px ${color},0 0 20px ${color}55;
             "></div>
           </div>`;
 
         const icon = L.divIcon({
           html: iconHtml,
           className: '',
-          iconSize: [isActive ? 24 : 16, isActive ? 24 : 16],
-          iconAnchor: [isActive ? 12 : 8, isActive ? 12 : 8],
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
         });
 
         const marker = L.marker([hs.lat, hs.lng], { icon })
           .addTo(map)
-          .bindPopup(
-            `<div style="font-family:Inter,sans-serif;min-width:200px;">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block"></span>
-                <strong style="font-size:13px;">${hs.name}</strong>
-                <span style="font-size:11px;padding:1px 6px;background:${color}22;color:${color};border-radius:3px;margin-left:auto">${hs.severity}</span>
-              </div>
-              <p style="font-size:11px;color:#8b93a8;margin-bottom:4px;">${hs.region} • ${hs.articleCount} article${hs.articleCount !== 1 ? 's' : ''}</p>
-              ${hs.latestHeadline
-                ? `<p style="font-size:12px;line-height:1.4;">${hs.latestHeadline}</p>`
-                : ''}
-            </div>`,
-            { maxWidth: 280 }
-          )
+          .bindPopup(buildPopupHtml(hs, color), {
+            maxWidth: 300,
+            className: 'military-popup',
+          })
           .on('click', () => onHotspotSelect(hs.id === activeHotspot ? null : hs.id));
 
         markersRef.current[hs.id] = marker;
@@ -126,28 +201,29 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
       className="card"
       style={{ gridArea: 'map', position: 'relative', ...style, borderRadius: '10px', overflow: 'hidden' }}
     >
-      {/* Map container */}
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
 
       {/* Legend */}
       <div
         className="absolute bottom-3 left-3 flex flex-col gap-1.5 rounded-lg px-3 py-2"
         style={{
-          background: 'rgba(15,17,23,0.85)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(8,12,18,0.9)',
+          border: '1px solid rgba(0,255,180,0.12)',
           backdropFilter: 'blur(8px)',
           zIndex: 1000,
         }}
       >
-        <p className="text-xs font-semibold mb-0.5" style={{ color: 'var(--text-secondary)' }}>Severity</p>
+        <p className="text-xs font-semibold mb-0.5" style={{ color: '#4ade80', letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '9px' }}>
+          Threat Level
+        </p>
         {[
           { label: 'Critical', color: '#ef4444' },
           { label: 'High', color: '#f97316' },
           { label: 'Watch', color: '#eab308' },
         ].map(({ label, color }) => (
           <div key={label} className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full block shrink-0" style={{ background: color }} />
-            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+            <span className="w-2 h-2 rounded-full block shrink-0" style={{ background: color, boxShadow: `0 0 4px ${color}` }} />
+            <span style={{ color: '#9ca3af', fontSize: '10px' }}>{label}</span>
           </div>
         ))}
       </div>
@@ -156,13 +232,16 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
       <div
         className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-medium"
         style={{
-          background: 'rgba(15,17,23,0.85)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          color: 'var(--text-secondary)',
+          background: 'rgba(8,12,18,0.9)',
+          border: '1px solid rgba(0,255,180,0.12)',
+          color: '#4ade80',
           zIndex: 1000,
+          fontSize: '10px',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
         }}
       >
-        {hotspots.length} Active Hotspots
+        ◉ {hotspots.length} Active Zones
       </div>
 
       {/* Active filter badge */}
@@ -171,14 +250,14 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
           className="absolute top-3 right-3 flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer"
           style={{
             background: 'rgba(59,130,246,0.15)',
-            border: '1px solid rgba(59,130,246,0.35)',
+            border: '1px solid rgba(59,130,246,0.4)',
             color: '#60a5fa',
             zIndex: 1000,
           }}
           onClick={() => onHotspotSelect(null)}
         >
-          <span>Filtering: {hotspots.find((h) => h.id === activeHotspot)?.name}</span>
-          <span>×</span>
+          <span>Filter: {hotspots.find((h) => h.id === activeHotspot)?.name}</span>
+          <span style={{ fontSize: '14px', lineHeight: 1 }}>×</span>
         </div>
       )}
     </div>
