@@ -9,6 +9,16 @@ import DailyDigest from './DailyDigest';
 
 export default function Dashboard({ user, theme, onThemeToggle }) {
   const [activeHotspot, setActiveHotspot] = useState(null);
+  // feedFilter: { label, keywords } or null
+  const [feedFilter, setFeedFilter] = useState(null);
+
+  function setTopicFilter(topic) {
+    setFeedFilter((prev) => prev?.label === topic ? null : { label: topic, type: 'topic' });
+  }
+
+  function setRegionFilter(regionLabel, keywords) {
+    setFeedFilter((prev) => prev?.label === regionLabel ? null : { label: regionLabel, keywords, type: 'region' });
+  }
 
   return (
     <div
@@ -31,25 +41,13 @@ export default function Dashboard({ user, theme, onThemeToggle }) {
         overflow: 'hidden',
       }}
     >
-      <StatusBar
-        user={user}
-        theme={theme}
-        onThemeToggle={onThemeToggle}
-        style={{ gridArea: 'statusbar' }}
-      />
-      <WorldMap
-        activeHotspot={activeHotspot}
-        onHotspotSelect={setActiveHotspot}
-        style={{ gridArea: 'map' }}
-      />
-      <NewsFeed
-        activeHotspot={activeHotspot}
-        style={{ gridArea: 'feed' }}
-      />
+      <StatusBar user={user} theme={theme} onThemeToggle={onThemeToggle} style={{ gridArea: 'statusbar' }} />
+      <WorldMap activeHotspot={activeHotspot} onHotspotSelect={setActiveHotspot} style={{ gridArea: 'map' }} />
+      <NewsFeed activeHotspot={activeHotspot} feedFilter={feedFilter} onClearFilter={() => setFeedFilter(null)} style={{ gridArea: 'feed' }} />
       <AlertsPanel style={{ gridArea: 'alerts' }} />
       <AIAnalysis activeHotspot={activeHotspot} style={{ gridArea: 'analysis' }} />
-      <TrendsChart style={{ gridArea: 'trends' }} />
-      <DailyDigest style={{ gridArea: 'digest' }} />
+      <TrendsChart activeTopic={feedFilter?.type === 'topic' ? feedFilter.label : null} onTopicSelect={setTopicFilter} style={{ gridArea: 'trends' }} />
+      <DailyDigest activeRegion={feedFilter?.type === 'region' ? feedFilter.label : null} onRegionSelect={setRegionFilter} style={{ gridArea: 'digest' }} />
     </div>
   );
 }
