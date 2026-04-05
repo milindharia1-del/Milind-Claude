@@ -121,27 +121,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
             }
           </Geographies>
 
-          {/* J&K Disputed Territory overlay — Line of Control approx bounding box */}
-          <Marker coordinates={[76.5, 34.0]}>
-            {/* Hatched dashed rectangle indicating disputed zone */}
-            <rect
-              x={-18} y={-22} width={36} height={44}
-              fill="none"
-              stroke="#facc15"
-              strokeWidth={1}
-              strokeDasharray="3,2"
-              style={{ pointerEvents: 'none' }}
-            />
-            <text
-              textAnchor="middle"
-              y={-26}
-              style={{ fontSize: 5, fill: '#facc15', fontFamily: 'Inter,sans-serif', fontWeight: 700, letterSpacing: '0.05em', pointerEvents: 'none' }}
-            >
-              DISPUTED
-            </text>
-          </Marker>
-
-          {hotspots.map((hs) => {
+{hotspots.map((hs) => {
             const color = hotspotColor(hs.severity);
             const isActive = activeHotspot === hs.id;
             return (
