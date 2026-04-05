@@ -207,4 +207,66 @@ router.get('/trends', async (req, res) => {
   }
 });
 
+// POST /api/analysis/hotspot/:id — focused briefing for a specific conflict zone
+const HOTSPOT_META = {
+  ua: { name: 'Ukraine', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv'] },
+  ir: { name: 'Iran', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian'] },
+  me: { name: 'Israel-Gaza', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah'] },
+  sy: { name: 'Syria', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib'] },
+  sd: { name: 'Sudan', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese'] },
+  tw: { name: 'Taiwan Strait', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military'] },
+  kp: { name: 'Korean Peninsula', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm'] },
+  in: { name: 'India-Pakistan', keywords: ['india', 'pakistan', 'kashmir', 'loc', 'islamabad'] },
+  sa: { name: 'Sahel Region', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner'] },
+};
+
+router.post('/hotspot/:id', async (req, res) => {
+  const { id } = req.params;
+  const meta = HOTSPOT_META[id];
+  if (!meta) return res.status(404).json({ error: 'Unknown hotspot' });
+
+  const cacheKey = `hotspot_${id}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return res.json(cached);
+
+  let allArticles = [];
+  try { allArticles = await fetchGDELT(); } catch {}
+
+  const articles = allArticles.filter((a) =>
+    meta.keywords.some((k) => (a.title || '').toLowerCase().includes(k))
+  );
+
+  let text;
+  if (articles.length === 0) {
+    text = `No recent GDELT articles matched ${meta.name} in the last 24 hours. The situation may be developing outside current monitored sources, or reporting frequency is low. Monitor ${meta.keywords.slice(0, 3).join(', ')} keyword feeds for updates.`;
+  } else {
+    const critical = articles.filter((a) => a.severity === 'Critical');
+    const high = articles.filter((a) => a.severity === 'High');
+    const topTitle = (critical[0] || high[0] || articles[0]).title;
+    const conflictCount = articles.filter((a) => ['war','attack','military','airstrike','missile','battle','killed'].some(k => a.title.toLowerCase().includes(k))).length;
+    const diplomacyCount = articles.filter((a) => ['talks','agreement','ceasefire','summit','negotiate'].some(k => a.title.toLowerCase().includes(k))).length;
+
+    const parts = [];
+    parts.push(`${meta.name} zone: ${articles.length} article${articles.length > 1 ? 's' : ''} tracked in the past 24 hours${critical.length > 0 ? `, including ${critical.length} critical-severity event${critical.length > 1 ? 's' : ''}` : ''}.`);
+    parts.push(`Latest development: ${topTitle}.`);
+    if (conflictCount > diplomacyCount) {
+      parts.push(`Operational indicators dominate reporting (${conflictCount} conflict vs ${diplomacyCount} diplomatic articles), suggesting active escalation with limited de-escalation signals.`);
+    } else if (diplomacyCount > 0) {
+      parts.push(`Diplomatic activity is present (${diplomacyCount} article${diplomacyCount > 1 ? 's' : ''}), indicating possible back-channel engagement alongside ${conflictCount} operational reports.`);
+    } else {
+      parts.push(`Situation remains under active monitoring. Recommend cross-referencing with regional intelligence feeds for ground-truth assessment.`);
+    }
+    text = parts.join(' ');
+  }
+
+  const result = {
+    name: meta.name,
+    text,
+    articles: articles.slice(0, 5).map((a) => ({ title: a.title, url: a.url, source: a.source, severity: a.severity })),
+    generatedAt: new Date().toISOString(),
+  };
+  cache.set(cacheKey, result, 1800); // 30 min cache
+  res.json(result);
+});
+
 module.exports = router;

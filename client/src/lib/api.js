@@ -30,6 +30,7 @@ export const newsApi = {
 export const analysisApi = {
   getBriefing: () => api.post('/api/analysis/briefing').then((r) => r.data),
   refreshBriefing: () => api.post('/api/analysis/briefing/refresh').then((r) => r.data),
+  getHotspotBriefing: (id) => api.post(`/api/analysis/hotspot/${id}`).then((r) => r.data),
   getDigest: () => api.get('/api/analysis/digest').then((r) => r.data),
   getTrends: () => api.get('/api/analysis/trends').then((r) => r.data),
 };

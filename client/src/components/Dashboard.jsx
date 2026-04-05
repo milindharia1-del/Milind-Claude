@@ -47,7 +47,7 @@ export default function Dashboard({ user, theme, onThemeToggle }) {
         style={{ gridArea: 'feed' }}
       />
       <AlertsPanel style={{ gridArea: 'alerts' }} />
-      <AIAnalysis style={{ gridArea: 'analysis' }} />
+      <AIAnalysis activeHotspot={activeHotspot} style={{ gridArea: 'analysis' }} />
       <TrendsChart style={{ gridArea: 'trends' }} />
       <DailyDigest style={{ gridArea: 'digest' }} />
     </div>
