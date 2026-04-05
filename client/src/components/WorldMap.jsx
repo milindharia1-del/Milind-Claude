@@ -1,103 +1,76 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useState } from 'react';
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../lib/api';
 import { hotspotColor } from '../lib/utils';
 
-// Fix Leaflet's broken default icon paths in Vite builds
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
-// Applies military tint to the tile layer pane
-function TileTint() {
-  const map = useMap();
-  useEffect(() => {
-    const pane = map.getPanes().tilePane;
-    if (pane) pane.style.filter = 'hue-rotate(140deg) saturate(0.5) brightness(0.8)';
-  }, [map]);
-  return null;
-}
+function Popup({ hs, color, onClose }) {
+  const sevBg = { Critical: 'rgba(239,68,68,0.15)', High: 'rgba(249,115,22,0.15)', Watch: 'rgba(234,179,8,0.15)' };
+  return (
+    <div style={{
+      position: 'absolute', top: 12, right: 12, zIndex: 50,
+      width: 290, background: '#0b0f1a',
+      border: `1px solid ${color}44`,
+      borderRadius: 10, padding: '14px',
+      boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px ${color}22`,
+      color: '#e5e7eb', fontFamily: 'Inter, system-ui, sans-serif',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}`, flexShrink: 0 }} />
+        <strong style={{ fontSize: 14, flex: 1 }}>{hs.name}</strong>
+        <span style={{
+          fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4,
+          background: sevBg[hs.severity] || 'rgba(255,255,255,0.07)',
+          color, border: `1px solid ${color}44`, letterSpacing: '0.05em',
+        }}>{hs.severity.toUpperCase()}</span>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>
+      </div>
 
-function buildPopupHtml(hs, color) {
-  const sevBg = { Critical: '#ef444422', High: '#f9731622', Watch: '#eab30822' };
-  const articles = hs.articles || [];
-
-  const rows = articles.length
-    ? articles.map((a) => `
-        <a href="${a.url}" target="_blank" rel="noopener" style="display:block;padding:6px 0;
-          border-top:1px solid rgba(255,255,255,0.06);text-decoration:none;color:inherit;">
-          <div style="font-size:11px;line-height:1.45;color:#d1d5db;margin-bottom:3px;">${a.title}</div>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:10px;color:#6b7280;">${a.source}</span>
-            <span style="font-size:10px;padding:1px 5px;border-radius:3px;
-              background:${sevBg[a.severity]||'#ffffff11'};color:${hotspotColor(a.severity)};">${a.severity}</span>
+      {/* Meta cards */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+        {[['Region', hs.region], ['Articles 24h', hs.articleCount], ['Coords', `${hs.lat.toFixed(1)}°, ${hs.lng.toFixed(1)}°`]].map(([label, val]) => (
+          <div key={label} style={{
+            flex: 1, padding: '5px 7px', borderRadius: 6,
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{label}</div>
+            <div style={{ fontSize: 11, fontWeight: 600 }}>{val}</div>
           </div>
-        </a>`).join('')
-    : `<p style="font-size:11px;color:#6b7280;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06)">No recent articles matched.</p>`;
-
-  return `
-    <div style="font-family:Inter,system-ui,sans-serif;width:270px;color:#e5e7eb;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <span style="width:10px;height:10px;border-radius:50%;background:${color};
-          box-shadow:0 0 8px ${color};flex-shrink:0;"></span>
-        <strong style="font-size:14px;flex:1;">${hs.name}</strong>
-        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;
-          background:${sevBg[hs.severity]||'#ffffff11'};color:${color};border:1px solid ${color}44;">
-          ${hs.severity.toUpperCase()}
-        </span>
+        ))}
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        ${[['Region', hs.region], ['Articles 24h', hs.articleCount], ['Coords', `${hs.lat.toFixed(1)}°, ${hs.lng.toFixed(1)}°`]].map(([label, val]) => `
-          <div style="flex:1;padding:5px 7px;border-radius:6px;
-            background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-            <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">${label}</div>
-            <div style="font-size:11px;font-weight:600;">${val}</div>
-          </div>`).join('')}
-      </div>
-      <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Latest Intel</div>
-      ${rows}
-    </div>`;
-}
 
-function HotspotMarkers({ hotspots, activeHotspot, onHotspotSelect }) {
-  return hotspots.map((hs) => {
-    const color = hotspotColor(hs.severity);
-    const isActive = activeHotspot === hs.id;
-    const size = isActive ? 26 : 18;
-
-    const icon = L.divIcon({
-      html: `<div style="position:relative;width:${size}px;height:${size}px;">
-        <div class="hotspot-ring" style="position:absolute;inset:0;border-radius:50%;
-          background:${color}22;border:1.5px solid ${color}66;"></div>
-        <div style="position:absolute;inset:${isActive ? 6 : 4}px;border-radius:50%;
-          background:${color};box-shadow:0 0 10px ${color},0 0 20px ${color}55;"></div>
-      </div>`,
-      className: '',
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-    });
-
-    return (
-      <Marker
-        key={hs.id}
-        position={[hs.lat, hs.lng]}
-        icon={icon}
-        eventHandlers={{ click: () => onHotspotSelect(hs.id === activeHotspot ? null : hs.id) }}
-      >
-        <Popup maxWidth={300} className="military-popup">
-          <div dangerouslySetInnerHTML={{ __html: buildPopupHtml(hs, color) }} />
-        </Popup>
-      </Marker>
-    );
-  });
+      {/* Articles */}
+      <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>Latest Intel</div>
+      {(hs.articles || []).length === 0 && (
+        <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>No recent articles matched.</p>
+      )}
+      {(hs.articles || []).map((a, i) => (
+        <a key={i} href={a.url} target="_blank" rel="noopener" style={{
+          display: 'block', padding: '6px 0',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          textDecoration: 'none', color: 'inherit',
+        }}>
+          <div style={{ fontSize: 11, lineHeight: 1.45, color: '#d1d5db', marginBottom: 3 }}>{a.title}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, color: '#6b7280' }}>{a.source}</span>
+            <span style={{
+              fontSize: 10, padding: '1px 5px', borderRadius: 3,
+              background: sevBg[a.severity] || 'rgba(255,255,255,0.07)',
+              color: hotspotColor(a.severity),
+            }}>{a.severity}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
 }
 
 export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
+  const [selectedHotspot, setSelectedHotspot] = useState(null);
+
   const { data } = useQuery({
     queryKey: ['hotspots'],
     queryFn: newsApi.getHotspots,
@@ -105,70 +78,100 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
   });
   const hotspots = data?.hotspots || [];
 
+  function handleMarkerClick(hs) {
+    const next = hs.id === selectedHotspot?.id ? null : hs;
+    setSelectedHotspot(next);
+    onHotspotSelect(next ? hs.id : null);
+  }
+
+  const activeHs = selectedHotspot;
+  const activeColor = activeHs ? hotspotColor(activeHs.severity) : null;
+
   return (
-    <div className="card" style={{ ...style, position: 'relative', borderRadius: '10px', overflow: 'hidden', minHeight: 0 }}>
-      <MapContainer
-        center={[20, 10]}
-        zoom={2}
-        minZoom={2}
-        maxZoom={10}
-        zoomControl={false}
-        attributionControl={false}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+    <div className="card" style={{ ...style, position: 'relative', borderRadius: 10, overflow: 'hidden', minHeight: 0, background: '#080c12' }}>
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{ scale: 140, center: [10, 15] }}
+        style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png"
-          maxZoom={19}
-          attribution="© CartoDB"
+        <ZoomableGroup zoom={1} minZoom={1} maxZoom={8}>
+          <Geographies geography={GEO_URL}>
+            {({ geographies }) =>
+              geographies.map((geo) => (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  style={{
+                    default: { fill: '#1a2535', stroke: '#0d1520', strokeWidth: 0.5, outline: 'none' },
+                    hover:   { fill: '#1e2e42', stroke: '#0d1520', strokeWidth: 0.5, outline: 'none' },
+                    pressed: { fill: '#1a2535', outline: 'none' },
+                  }}
+                />
+              ))
+            }
+          </Geographies>
+
+          {hotspots.map((hs) => {
+            const color = hotspotColor(hs.severity);
+            const isActive = activeHotspot === hs.id;
+            const r = isActive ? 9 : 6;
+            return (
+              <Marker key={hs.id} coordinates={[hs.lng, hs.lat]}>
+                <circle r={r * 2.2} fill={`${color}18`} style={{ animation: 'none' }} />
+                <circle
+                  r={r}
+                  fill={color}
+                  stroke={isActive ? '#fff' : `${color}cc`}
+                  strokeWidth={isActive ? 1.5 : 1}
+                  style={{
+                    cursor: 'pointer',
+                    filter: `drop-shadow(0 0 6px ${color})`,
+                    transition: 'r 0.2s',
+                  }}
+                  onClick={() => handleMarkerClick(hs)}
+                />
+              </Marker>
+            );
+          })}
+        </ZoomableGroup>
+      </ComposableMap>
+
+      {/* Popup */}
+      {activeHs && (
+        <Popup
+          hs={activeHs}
+          color={activeColor}
+          onClose={() => { setSelectedHotspot(null); onHotspotSelect(null); }}
         />
-        <TileTint />
-        <HotspotMarkers
-          hotspots={hotspots}
-          activeHotspot={activeHotspot}
-          onHotspotSelect={onHotspotSelect}
-        />
-      </MapContainer>
+      )}
 
       {/* Legend */}
       <div style={{
-        position: 'absolute', bottom: 12, left: 12, zIndex: 1000,
-        background: 'rgba(8,12,18,0.9)', border: '1px solid rgba(0,255,180,0.12)',
-        backdropFilter: 'blur(8px)', borderRadius: '8px', padding: '8px 12px',
-        display: 'flex', flexDirection: 'column', gap: '5px',
+        position: 'absolute', bottom: 12, left: 12, zIndex: 10,
+        background: 'rgba(8,12,18,0.92)', border: '1px solid rgba(0,255,180,0.12)',
+        backdropFilter: 'blur(8px)', borderRadius: 8, padding: '8px 12px',
+        display: 'flex', flexDirection: 'column', gap: 5,
       }}>
-        <p style={{ color: '#4ade80', fontSize: '9px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
+        <p style={{ color: '#4ade80', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
           Threat Level
         </p>
         {[['Critical','#ef4444'],['High','#f97316'],['Watch','#eab308']].map(([label, color]) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, boxShadow: `0 0 4px ${color}`, flexShrink: 0 }} />
-            <span style={{ color: '#9ca3af', fontSize: '10px' }}>{label}</span>
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, boxShadow: `0 0 5px ${color}`, flexShrink: 0 }} />
+            <span style={{ color: '#9ca3af', fontSize: 10 }}>{label}</span>
           </div>
         ))}
       </div>
 
       {/* Zone counter */}
       <div style={{
-        position: 'absolute', top: 12, left: 12, zIndex: 1000,
-        background: 'rgba(8,12,18,0.9)', border: '1px solid rgba(0,255,180,0.12)',
-        borderRadius: '6px', padding: '4px 10px',
-        color: '#4ade80', fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
+        position: 'absolute', top: 12, left: 12, zIndex: 10,
+        background: 'rgba(8,12,18,0.92)', border: '1px solid rgba(0,255,180,0.12)',
+        borderRadius: 6, padding: '4px 10px',
+        color: '#4ade80', fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
       }}>
         ◉ {hotspots.length} Active Zones
       </div>
-
-      {activeHotspot && (
-        <div onClick={() => onHotspotSelect(null)} style={{
-          position: 'absolute', top: 12, right: 12, zIndex: 1000,
-          display: 'flex', alignItems: 'center', gap: '8px',
-          background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.4)',
-          borderRadius: '6px', padding: '4px 10px',
-          color: '#60a5fa', fontSize: '11px', fontWeight: 500, cursor: 'pointer',
-        }}>
-          <span>Filter: {hotspots.find(h => h.id === activeHotspot)?.name}</span>
-          <span style={{ fontSize: '15px', lineHeight: 1 }}>×</span>
-        </div>
-      )}
     </div>
   );
 }
