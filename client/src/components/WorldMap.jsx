@@ -1,94 +1,111 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  Marker,
+  ZoomableGroup,
+} from 'react-simple-maps';
+import worldData from 'world-atlas/countries-110m.json';
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../lib/api';
 import { hotspotColor } from '../lib/utils';
 
-// Fix broken default icon paths in Vite builds
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+const SEV_BG = {
+  Critical: 'rgba(239,68,68,0.15)',
+  High: 'rgba(249,115,22,0.15)',
+  Watch: 'rgba(234,179,8,0.15)',
+};
 
-function ZoomControl() {
-  const map = useMap();
-  React.useEffect(() => {
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.control.attribution({ position: 'bottomleft', prefix: '© CartoDB' }).addTo(map);
-  }, [map]);
-  return null;
-}
+function HotspotPopup({ hs, onClose }) {
+  const color = hotspotColor(hs.severity);
+  return (
+    <div style={{
+      position: 'absolute', top: 10, right: 10, zIndex: 50,
+      width: 285,
+      background: '#0b0f1a',
+      border: `1px solid ${color}55`,
+      borderRadius: 10,
+      padding: 14,
+      boxShadow: `0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px ${color}22`,
+      color: '#e5e7eb',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontSize: 12,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{
+          width: 10, height: 10, borderRadius: '50%',
+          background: color, boxShadow: `0 0 8px ${color}`, flexShrink: 0,
+        }} />
+        <strong style={{ fontSize: 14, flex: 1 }}>{hs.name}</strong>
+        <span style={{
+          fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4,
+          background: SEV_BG[hs.severity] || 'rgba(255,255,255,0.07)',
+          color, border: `1px solid ${color}44`, letterSpacing: '0.05em',
+        }}>
+          {hs.severity.toUpperCase()}
+        </span>
+        <button onClick={onClose} style={{
+          background: 'none', border: 'none', color: '#6b7280',
+          cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0, marginLeft: 4,
+        }}>×</button>
+      </div>
 
-function HotspotMarkers({ hotspots, activeHotspot, onSelect }) {
-  return hotspots.map((hs) => {
-    const color = hotspotColor(hs.severity);
-    const isActive = activeHotspot === hs.id;
-    const size = isActive ? 26 : 18;
-    const sevBg = { Critical: 'rgba(239,68,68,0.15)', High: 'rgba(249,115,22,0.15)', Watch: 'rgba(234,179,8,0.15)' };
-
-    const icon = L.divIcon({
-      html: `<div style="position:relative;width:${size}px;height:${size}px;">
-        <div class="hotspot-ring" style="position:absolute;inset:0;border-radius:50%;
-          background:${color}22;border:1.5px solid ${color}66;"></div>
-        <div style="position:absolute;inset:${isActive ? 6 : 4}px;border-radius:50%;
-          background:${color};box-shadow:0 0 10px ${color},0 0 20px ${color}55;"></div>
-      </div>`,
-      className: '',
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-    });
-
-    const articles = hs.articles || [];
-
-    return (
-      <Marker
-        key={hs.id}
-        position={[hs.lat, hs.lng]}
-        icon={icon}
-        eventHandlers={{ click: () => onSelect(hs.id === activeHotspot ? null : hs.id) }}
-      >
-        <Popup maxWidth={300} className="military-popup">
-          <div style={{ fontFamily: 'Inter,system-ui,sans-serif', width: 270, color: '#e5e7eb' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}`, flexShrink: 0 }} />
-              <strong style={{ fontSize: 14, flex: 1 }}>{hs.name}</strong>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: sevBg[hs.severity] || 'rgba(255,255,255,0.07)', color, border: `1px solid ${color}44`, letterSpacing: '0.05em' }}>
-                {hs.severity.toUpperCase()}
-              </span>
+      {/* Meta cards */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+        {[
+          ['Region', hs.region],
+          ['Articles', hs.articleCount],
+          ['Coords', `${hs.lat.toFixed(1)}°, ${hs.lng.toFixed(1)}°`],
+        ].map(([label, val]) => (
+          <div key={label} style={{
+            flex: 1, padding: '5px 7px', borderRadius: 6,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
+              {label}
             </div>
-            {/* Meta */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {[['Region', hs.region], ['Articles 24h', hs.articleCount], ['Coords', `${hs.lat.toFixed(1)}°,${hs.lng.toFixed(1)}°`]].map(([label, val]) => (
-                <div key={label} style={{ flex: 1, padding: '5px 6px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>{label}</div>
-                  <div style={{ fontSize: 11, fontWeight: 600 }}>{val}</div>
-                </div>
-              ))}
-            </div>
-            {/* Articles */}
-            <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Latest Intel</div>
-            {articles.length === 0 && <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>No recent articles matched.</p>}
-            {articles.map((a, i) => (
-              <a key={i} href={a.url} target="_blank" rel="noopener" style={{ display: 'block', padding: '6px 0', borderTop: '1px solid rgba(255,255,255,0.06)', textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ fontSize: 11, lineHeight: 1.45, color: '#d1d5db', marginBottom: 3 }}>{a.title}</div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <span style={{ fontSize: 10, color: '#6b7280' }}>{a.source}</span>
-                  <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 3, background: sevBg[a.severity] || 'rgba(255,255,255,0.07)', color: hotspotColor(a.severity) }}>{a.severity}</span>
-                </div>
-              </a>
-            ))}
+            <div style={{ fontSize: 11, fontWeight: 600 }}>{val}</div>
           </div>
-        </Popup>
-      </Marker>
-    );
-  });
+        ))}
+      </div>
+
+      {/* Articles */}
+      <div style={{ fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>
+        Latest Intel
+      </div>
+      {(hs.articles || []).length === 0 ? (
+        <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>No recent articles matched.</p>
+      ) : (
+        (hs.articles || []).map((a, i) => (
+          <a key={i} href={a.url} target="_blank" rel="noopener" style={{
+            display: 'block', padding: '6px 0',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            textDecoration: 'none', color: 'inherit',
+          }}>
+            <div style={{ fontSize: 11, lineHeight: 1.45, color: '#d1d5db', marginBottom: 3 }}>
+              {a.title}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 10, color: '#6b7280' }}>{a.source}</span>
+              <span style={{
+                fontSize: 10, padding: '1px 5px', borderRadius: 3,
+                background: SEV_BG[a.severity] || 'rgba(255,255,255,0.07)',
+                color: hotspotColor(a.severity),
+              }}>{a.severity}</span>
+            </div>
+          </a>
+        ))
+      )}
+    </div>
+  );
 }
 
 export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
+  const [selected, setSelected] = useState(null);
+
   const { data } = useQuery({
     queryKey: ['hotspots'],
     queryFn: newsApi.getHotspots,
@@ -96,43 +113,135 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
   });
   const hotspots = data?.hotspots || [];
 
+  function handleClick(hs) {
+    if (selected?.id === hs.id) {
+      setSelected(null);
+      onHotspotSelect(null);
+    } else {
+      setSelected(hs);
+      onHotspotSelect(hs.id);
+    }
+  }
+
   return (
-    <div className="card" style={{ ...style, position: 'relative', borderRadius: 10, overflow: 'hidden', minHeight: 0 }}>
-      <MapContainer
-        center={[20, 10]}
-        zoom={2}
-        minZoom={2}
-        maxZoom={10}
-        zoomControl={false}
-        attributionControl={false}
+    <div
+      className="card"
+      style={{
+        ...style,
+        position: 'relative',
+        borderRadius: 10,
+        overflow: 'hidden',
+        minHeight: 0,
+        background: '#080d14',
+      }}
+    >
+      {/* SVG world map — data is bundled at build time, no network request */}
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{ scale: 135, center: [10, 15] }}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          maxZoom={19}
+        <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={8}>
+          <Geographies geography={worldData}>
+            {({ geographies }) =>
+              geographies.map((geo) => (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  style={{
+                    default: { fill: '#16202e', stroke: '#0a1018', strokeWidth: 0.4, outline: 'none' },
+                    hover:   { fill: '#1c2d40', stroke: '#0a1018', strokeWidth: 0.4, outline: 'none' },
+                    pressed: { fill: '#16202e', outline: 'none' },
+                  }}
+                />
+              ))
+            }
+          </Geographies>
+
+          {hotspots.map((hs) => {
+            const color = hotspotColor(hs.severity);
+            const isActive = activeHotspot === hs.id;
+            return (
+              <Marker key={hs.id} coordinates={[hs.lng, hs.lat]}>
+                {/* Pulse ring */}
+                <circle
+                  r={isActive ? 18 : 13}
+                  fill={`${color}18`}
+                  stroke={`${color}44`}
+                  strokeWidth={1}
+                  style={{ pointerEvents: 'none' }}
+                />
+                {/* Core dot */}
+                <circle
+                  r={isActive ? 8 : 5}
+                  fill={color}
+                  stroke={isActive ? '#fff' : `${color}bb`}
+                  strokeWidth={isActive ? 1.5 : 0.8}
+                  style={{
+                    cursor: 'pointer',
+                    filter: `drop-shadow(0 0 5px ${color}) drop-shadow(0 0 10px ${color}88)`,
+                    transition: 'r 0.15s',
+                  }}
+                  onClick={() => handleClick(hs)}
+                />
+              </Marker>
+            );
+          })}
+        </ZoomableGroup>
+      </ComposableMap>
+
+      {/* Detail popup */}
+      {selected && (
+        <HotspotPopup
+          hs={selected}
+          onClose={() => { setSelected(null); onHotspotSelect(null); }}
         />
-        <ZoomControl />
-        <HotspotMarkers hotspots={hotspots} activeHotspot={activeHotspot} onSelect={onHotspotSelect} />
-      </MapContainer>
+      )}
 
       {/* Legend */}
-      <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 1000, background: 'rgba(15,17,23,0.88)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', borderRadius: 8, padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Severity</p>
+      <div style={{
+        position: 'absolute', bottom: 10, left: 10, zIndex: 10,
+        background: 'rgba(8,13,20,0.92)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: 8, padding: '8px 12px',
+        display: 'flex', flexDirection: 'column', gap: 5,
+      }}>
+        <p style={{ color: '#94a3b8', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>
+          Severity
+        </p>
         {[['Critical','#ef4444'],['High','#f97316'],['Watch','#eab308']].map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, boxShadow: `0 0 4px ${color}`, flexShrink: 0 }} />
-            <span style={{ color: 'var(--text-secondary)', fontSize: 10 }}>{label}</span>
+            <span style={{ color: '#94a3b8', fontSize: 10 }}>{label}</span>
           </div>
         ))}
       </div>
 
       {/* Zone counter */}
-      <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, background: 'rgba(15,17,23,0.88)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '4px 10px', color: 'var(--text-secondary)', fontSize: 10, fontWeight: 600 }}>
+      <div style={{
+        position: 'absolute', top: 10, left: 10, zIndex: 10,
+        background: 'rgba(8,13,20,0.92)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 6, padding: '4px 10px',
+        color: '#94a3b8', fontSize: 10, fontWeight: 600,
+      }}>
         {hotspots.length} Active Hotspots
       </div>
 
-      {activeHotspot && (
-        <div onClick={() => onHotspotSelect(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.4)', borderRadius: 6, padding: '4px 10px', color: '#60a5fa', fontSize: 11, cursor: 'pointer' }}>
+      {/* Active filter badge */}
+      {activeHotspot && !selected && (
+        <div
+          onClick={() => onHotspotSelect(null)}
+          style={{
+            position: 'absolute', top: 10, right: 10, zIndex: 10,
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(59,130,246,0.15)',
+            border: '1px solid rgba(59,130,246,0.4)',
+            borderRadius: 6, padding: '4px 10px',
+            color: '#60a5fa', fontSize: 11, cursor: 'pointer',
+          }}
+        >
           <span>Filter: {hotspots.find(h => h.id === activeHotspot)?.name}</span>
           <span style={{ fontSize: 15 }}>×</span>
         </div>
