@@ -105,7 +105,7 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
         style={{ position: 'absolute', inset: 0, display: 'block' }}
       >
         <ZoomableGroup zoom={1} minZoom={0.8} maxZoom={8}>
-          <Geographies geography="/world-110m.json">
+          <Geographies geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json">
             {({ geographies }) =>
               geographies.map((geo) => (
                 <Geography
