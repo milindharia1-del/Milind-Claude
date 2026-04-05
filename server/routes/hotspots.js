@@ -3,15 +3,15 @@ const { fetchGDELT } = require('./news');
 
 // 9 regional hotspots with geo coordinates
 const HOTSPOT_REGIONS = [
-  { id: 'ua', name: 'Ukraine', lat: 49.4, lng: 31.1, region: 'Europe', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv'] },
-  { id: 'ir', name: 'Iran', lat: 32.4, lng: 53.7, region: 'Middle East', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian'] },
-  { id: 'me', name: 'Israel-Gaza', lat: 31.5, lng: 35.2, region: 'Middle East', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah'] },
-  { id: 'sy', name: 'Syria', lat: 34.8, lng: 38.9, region: 'Middle East', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib'] },
-  { id: 'sd', name: 'Sudan', lat: 15.5, lng: 32.5, region: 'Africa', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese'] },
-  { id: 'tw', name: 'Taiwan Strait', lat: 23.8, lng: 121.0, region: 'Asia-Pacific', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military'] },
-  { id: 'kp', name: 'Korean Peninsula', lat: 37.5, lng: 127.0, region: 'Asia-Pacific', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm'] },
-  { id: 'in', name: 'India-Pakistan', lat: 30.4, lng: 73.1, region: 'South Asia', keywords: ['india', 'pakistan', 'kashmir', 'loc', 'islamabad'] },
-  { id: 'sa', name: 'Sahel Region', lat: 14.0, lng: -1.5, region: 'Africa', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner'] },
+  { id: 'ua', name: 'Ukraine', lat: 49.4, lng: 31.1, region: 'Europe', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv', 'russo', 'kremlin', 'moscow war', 'donbas', 'kherson', 'mariupol', 'zelenskyy'] },
+  { id: 'ir', name: 'Iran', lat: 32.4, lng: 53.7, region: 'Middle East', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian', 'rouhani', 'nuclear iran', 'sanctions iran', 'strait of hormuz'] },
+  { id: 'me', name: 'Israel-Gaza', lat: 31.5, lng: 35.2, region: 'Middle East', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah', 'hezbollah', 'tel aviv', 'jerusalem', 'palestin', 'settler', 'lebanese'] },
+  { id: 'sy', name: 'Syria', lat: 34.8, lng: 38.9, region: 'Middle East', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib', 'aleppo', 'isis syria', 'rebel syria'] },
+  { id: 'sd', name: 'Sudan', lat: 15.5, lng: 32.5, region: 'Africa', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese', 'rapid support', 'south sudan', 'sudani', 'omdurman', 'war sudan'] },
+  { id: 'tw', name: 'Taiwan Strait', lat: 23.8, lng: 121.0, region: 'Asia-Pacific', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military', 'tsai', 'taiwanese', 'china navy', 'south china sea', 'china threat', 'beijing taiwan'] },
+  { id: 'kp', name: 'Korean Peninsula', lat: 37.5, lng: 127.0, region: 'Asia-Pacific', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm', 'seoul', 'south korea military', 'korean missile', 'ballistic korea'] },
+  { id: 'in', name: 'J&K / India-Pak', lat: 34.0, lng: 76.5, region: 'South Asia', keywords: ['kashmir', 'jammu', 'line of control', 'loc india', 'india pakistan', 'pakistan military', 'islamabad', 'modi pakistan', 'pulwama', 'uri attack', 'surgical strike'] },
+  { id: 'sa', name: 'Sahel Region', lat: 14.0, lng: -1.5, region: 'Africa', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner', 'faso', 'bamako', 'niamey', 'al qaeda sahel', 'jihadist africa'] },
 ];
 
 function matchHotspot(article) {

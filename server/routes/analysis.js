@@ -209,15 +209,15 @@ router.get('/trends', async (req, res) => {
 
 // POST /api/analysis/hotspot/:id — focused briefing for a specific conflict zone
 const HOTSPOT_META = {
-  ua: { name: 'Ukraine', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv'] },
-  ir: { name: 'Iran', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian'] },
-  me: { name: 'Israel-Gaza', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah'] },
-  sy: { name: 'Syria', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib'] },
-  sd: { name: 'Sudan', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese'] },
-  tw: { name: 'Taiwan Strait', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military'] },
-  kp: { name: 'Korean Peninsula', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm'] },
-  in: { name: 'India-Pakistan', keywords: ['india', 'pakistan', 'kashmir', 'loc', 'islamabad'] },
-  sa: { name: 'Sahel Region', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner'] },
+  ua: { name: 'Ukraine', keywords: ['ukraine', 'kyiv', 'russian', 'zaporizhzhia', 'zelensky', 'kharkiv', 'kremlin', 'donbas', 'kherson'] },
+  ir: { name: 'Iran', keywords: ['iran', 'tehran', 'irgc', 'khamenei', 'iranian', 'persian', 'nuclear iran', 'sanctions iran'] },
+  me: { name: 'Israel-Gaza', keywords: ['israel', 'gaza', 'hamas', 'netanyahu', 'idf', 'west bank', 'rafah', 'hezbollah', 'palestin', 'jerusalem'] },
+  sy: { name: 'Syria', keywords: ['syria', 'damascus', 'syrian', 'hts', 'idlib', 'aleppo'] },
+  sd: { name: 'Sudan', keywords: ['sudan', 'khartoum', 'darfur', 'rsf', 'sudanese', 'rapid support', 'south sudan'] },
+  tw: { name: 'Taiwan Strait', keywords: ['taiwan', 'strait', 'pla', 'taipei', 'china military', 'taiwanese', 'south china sea'] },
+  kp: { name: 'Korean Peninsula', keywords: ['north korea', 'kim jong', 'pyongyang', 'dprk', 'icbm', 'korean missile', 'seoul'] },
+  in: { name: 'J&K / India-Pakistan', keywords: ['kashmir', 'jammu', 'line of control', 'india pakistan', 'pakistan military', 'islamabad', 'pulwama', 'loc india'] },
+  sa: { name: 'Sahel Region', keywords: ['mali', 'niger', 'burkina', 'sahel', 'coup', 'junta', 'wagner', 'bamako', 'niamey'] },
 };
 
 router.post('/hotspot/:id', async (req, res) => {

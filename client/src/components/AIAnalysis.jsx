@@ -15,11 +15,12 @@ export default function AIAnalysis({ activeHotspot, style }) {
   });
 
   // Hotspot-focused briefing — only fetched when a hotspot is active
-  const { data: hotspotData, isLoading: hotspotLoading } = useQuery({
+  const { data: hotspotData, isLoading: hotspotLoading, isFetching: hotspotFetching } = useQuery({
     queryKey: ['hotspot-briefing', activeHotspot],
     queryFn: () => analysisApi.getHotspotBriefing(activeHotspot),
     enabled: !!activeHotspot,
     staleTime: 30 * 60 * 1000,
+    placeholderData: undefined, // don't show previous hotspot's data while loading new one
   });
 
   const { mutate: refresh, isPending: refreshing } = useMutation({
@@ -29,7 +30,7 @@ export default function AIAnalysis({ activeHotspot, style }) {
 
   const isHotspot = !!activeHotspot;
   const data = isHotspot ? hotspotData : globalData;
-  const isLoading = isHotspot ? hotspotLoading : globalLoading;
+  const isLoading = isHotspot ? (hotspotLoading || hotspotFetching) : globalLoading;
 
   return (
     <div
