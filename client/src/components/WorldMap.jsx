@@ -112,9 +112,9 @@ export default function WorldMap({ activeHotspot, onHotspotSelect, style }) {
                   key={geo.rsmKey}
                   geography={geo}
                   style={{
-                    default: { fill: '#16202e', stroke: '#0a1018', strokeWidth: 0.4, outline: 'none' },
-                    hover:   { fill: '#1c2d40', stroke: '#0a1018', strokeWidth: 0.4, outline: 'none' },
-                    pressed: { fill: '#16202e', outline: 'none' },
+                    default: { fill: '#1e3a5f', stroke: '#0d2137', strokeWidth: 0.5, outline: 'none' },
+                    hover:   { fill: '#2a5280', stroke: '#0d2137', strokeWidth: 0.5, outline: 'none' },
+                    pressed: { fill: '#1e3a5f', outline: 'none' },
                   }}
                 />
               ))
