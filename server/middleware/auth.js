@@ -1,5 +1,5 @@
 function requireAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
+  if (req.session && req.session.authenticated) return next();
   res.status(401).json({ error: 'Unauthorised', authenticated: false });
 }
 

@@ -31,7 +31,7 @@ export default function App() {
   }
 
   if (!data?.authenticated) {
-    return <LoginPage />;
+    return <LoginPage onLogin={() => window.location.reload()} />;
   }
 
   return (

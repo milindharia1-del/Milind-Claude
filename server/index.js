@@ -1,12 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport');
 const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-
-require('./auth/passport');
 
 const newsRouter = require('./routes/news');
 const alertsRouter = require('./routes/alerts');
@@ -33,14 +30,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24h
   },
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
